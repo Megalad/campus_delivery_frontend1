@@ -1,16 +1,31 @@
-# React + Vite
+# CampusOne Delivery Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Team Members
+- Khant Nyi Thu
+- Paing Min Thant
+- Pyae ZIn Phyo
 
-Currently, two official plugins are available:
+## Project Description
+CampusOne Delivery Frontend is a web application for campus food and shop delivery services. It supports three user roles: customers, vendors, and administrators. Customers can browse vendors, view menus, place orders, and track order status. Vendors can register shops, manage menu items, and handle incoming orders. Administrators can monitor system data and manage users, vendors, and locations.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Screenshots
 
-## React Compiler
+### Admin
+![Admin Dashboard Overview](screenshot/admin-dashboard-overview.png)
+![Admin Users Management](screenshot/admin-users-management.png)
+![Admin Vendors Management](screenshot/admin-vendors-management.png)
+![Admin Locations Management](screenshot/admin-locations-management.png)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### User
+![User Home Page](screenshot/user-home-page.png)
+![User Vendor List](screenshot/user-vendor-list.png)
+![User Menu Page](screenshot/user-menu-page.png)
+![User Cart and Checkout](screenshot/user-cart-and-checkout.png)
+![User Order Tracking](screenshot/user-order-tracking.png)
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Vendor
+![Vendor Shop Registration](screenshot/vendor-shop-registration.png)
+![Vendor Dashboard Overview](screenshot/vendor-dashboard-overview.png)
+![Vendor Order Management](screenshot/vendor-order-management.png)
+![Vendor Menu Management](screenshot/vendor-menu-management.png)
+![Vendor Menu Edit Item](screenshot/vendor-menu-edit-item.png)
