@@ -10,22 +10,28 @@ CampusOne Delivery Frontend is a web application for campus food and shop delive
 
 ## Screenshots
 
-### Admin
-![Admin Dashboard Overview](screenshot/admin-dashboard-overview.png)
-![Admin Users Management](screenshot/admin-users-management.png)
-![Admin Vendors Management](screenshot/admin-vendors-management.png)
-![Admin Locations Management](screenshot/admin-locations-management.png)
+![Login](screenshot/login.png)
 
 ### User
-![User Home Page](screenshot/user-home-page.png)
-![User Vendor List](screenshot/user-vendor-list.png)
-![User Menu Page](screenshot/user-menu-page.png)
-![User Cart and Checkout](screenshot/user-cart-and-checkout.png)
-![User Order Tracking](screenshot/user-order-tracking.png)
+![User Home Page](screenshot/user-shop-location.png)
+![User Vendor List From Selected Location](screenshot/user-plaza-shops.png)
+![User Menu Page](screenshot/user-shop-ordering.png)
+![User Cart and Checkout](screenshot/user-payment.png)
+![User Order Finished](screenshot/user-order-received.png)
 
 ### Vendor
-![Vendor Shop Registration](screenshot/vendor-shop-registration.png)
-![Vendor Dashboard Overview](screenshot/vendor-dashboard-overview.png)
-![Vendor Order Management](screenshot/vendor-order-management.png)
-![Vendor Menu Management](screenshot/vendor-menu-management.png)
-![Vendor Menu Edit Item](screenshot/vendor-menu-edit-item.png)
+![Vendor Order Pending](screenshot/vendor-pending-order.png)
+![Vendor Order Accepted](screenshot/vendor-accepted-order.png)
+![Vendor Order Preparing](screenshot/vendor-preparing-order.png)
+![Vendor Order Ready](screenshot/vendor-ready-order.png)
+![Vendor Order Finish](screenshot/vendor-finish-order.png)
+
+
+### Admin
+![Admin Dashboard Overview](screenshot/admin-dashboard.png)
+![Admin Users Management](screenshot/admin-manage-user.png)
+![Admin Vendors Management](screenshot/admin-manage-vendor.png)
+![Admin Locations Management](screenshot/admin-manage-location.png)
+
+## Full detailed walkthrough will be demonstrated in youtube video.
+
