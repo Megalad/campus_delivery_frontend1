@@ -104,8 +104,8 @@ const Register = ({ onSwitch }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">AU Email</label>
-              <input name="email" type="email" required className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all outline-none bg-white/50" placeholder="user@au.edu" />
+              <label className="block text-sm font-semibold text-slate-700 mb-1">Email</label>
+              <input name="email" type="email" required className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all outline-none bg-white/50" placeholder="user@domain.com" />
             </div>
 
             <div>
@@ -113,39 +113,32 @@ const Register = ({ onSwitch }) => {
               <input name="phone" type="tel" required className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all outline-none bg-white/50" placeholder="08X-XXX-XXXX" />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">
-                {role === 'Vendor' ? 'Shop Location' : 'Faculty'}
-              </label>
-              <select 
-                name="location" 
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all outline-none bg-white/50 appearance-none cursor-pointer"
-              >
-                {role === 'Vendor' ? (
-                  <>
-                    {dbLocations.length === 0 && <option value="">Loading locations...</option>}
-                    {dbLocations.map((loc) => (
-                      <option key={loc._id} value={loc.locationName}>
-                        {loc.locationName}
-                      </option>
-                    ))}
-                  </>
-                ) : (
-                  <>
-                    <option value="MSME">Martin de Tours School of Management and Economics</option>
-                    <option value="ARTS">Theodore Maria School of Arts</option>
-                    <option value="COMMARTS">Albert Laurence School of Communication Arts</option>
-                    <option value="VME">Vincent Mary School of Engineering</option>
-                    <option value="VMS">Vincent Mary School of Science and Technology</option>
-                    <option value="ARCH">Montfort del Rosario School of Architecture and Design</option>
-                    <option value="LAW">Thomas Aquinas School of Law</option>
-                    <option value="NURSING">Bernadette de Lourdes School of Nursing Science</option>
-                    <option value="BIOTECH">Theophane Venard School of Biotechnology</option>
-                    <option value="MUSIC">Louis Nobiron School of Music</option>
-                  </>
-                )}
-              </select>
-            </div>
+            {/* ONLY SHOW FACULTY DROPDOWN IF CUSTOMER */}
+            {role === 'Customer' && (
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Faculty</label>
+                <select 
+                  name="location" 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all outline-none bg-white/50 appearance-none cursor-pointer"
+                >
+                  <option value="MSME">Martin de Tours School of Management</option>
+                  <option value="ARTS">Theodore Maria School of Arts</option>
+                  <option value="COMMARTS">Communication Arts</option>
+                  <option value="VME">Engineering</option>
+                  <option value="VMS">Science and Technology</option>
+                  <option value="ARCH">Architecture and Design</option>
+                  <option value="LAW">Law</option>
+                  <option value="NURSING">Nursing Science</option>
+                  <option value="BIOTECH">Biotechnology</option>
+                  <option value="MUSIC">Music</option>
+                </select>
+              </div>
+            )}
+
+            {/* HIDDEN INPUT FOR VENDOR LOCATION SO BACKEND DOESN'T BREAK */}
+            {role === 'Vendor' && (
+               <input type="hidden" name="location" value="PENDING_SETUP" />
+            )}
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>

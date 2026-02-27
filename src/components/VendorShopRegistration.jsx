@@ -1,113 +1,144 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const VendorShopRegistration = ({ userId, onComplete }) => {
-  const [imagePreview, setImagePreview] = useState(null);
+const VendorShopRegistration = ({ user, onComplete }) => {
+  const navigate = useNavigate();
+  const [shopName, setShopName] = useState('');
+  const [cuisineType, setCuisineType] = useState('');
+  const [locationId, setLocationId] = useState('');
+  const [dbLocations, setDbLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(true);
 
-  // Handle image preview when a file is selected
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
+  // 1. Fetch the exact locations you created in the Admin Dashboard
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/locations`);
+        if (response.ok) {
+          const data = await response.json();
+          setDbLocations(data);
+          // Set the first location as default if it exists
+          if (data.length > 0) setLocationId(data[0].locationName);
+        }
+      } catch (err) {
+        console.error("Failed to fetch locations:", err);
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+    fetchLocations();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting with User ID:", userId);
     
-    // Use FormData for file uploads
-    const formData = new FormData();
-    formData.append('shopName', e.target.shopName.value);
-    formData.append('locationId', e.target.location.value);
-    formData.append('cuisineType', e.target.cuisine.value);
-    formData.append('ownerId', userId); // FK linking to Entity 1
-    
-    // Attach the file if it exists
-    if (e.target.shopImage.files[0]) {
-      formData.append('image', e.target.shopImage.files[0]);
+    // Safety check: Grab user from props, or fallback to LocalStorage
+    const currentUser = user || JSON.parse(localStorage.getItem('user'));
+
+    if (!currentUser || (!currentUser.id && !currentUser._id)) {
+      alert("Session lost. Please log out and log back in.");
+      return;
     }
 
+    const finalUserId = currentUser.id || currentUser._id;
+
+    // IMPORTANT: Because backend uses 'multer', we MUST use FormData instead of JSON
+    const formData = new FormData();
+    formData.append('ownerId', finalUserId); // Backend expects 'ownerId'
+    formData.append('shopName', shopName);
+    formData.append('cuisineType', cuisineType);
+    formData.append('locationId', locationId);
+    // Note: We leave 'image' out for now since the backend says 'req.file ? ... : ""'
+
     try {
-      // NOTE: Do NOT set Content-Type header when sending FormData
-      // The browser will automatically set it to multipart/form-data
+      // 1. Updated the URL to include /register-shop
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/vendors/register-shop`, {
         method: 'POST',
-        body: formData,
+        // 2. DO NOT set 'Content-Type'. The browser automatically sets it for FormData!
+        body: formData
       });
 
-      const data = await response.json();
-
       if (response.ok) {
-        alert("Shop Registered Successfully!");
-        onComplete(); // Move to the Vendor Dashboard
+        alert("Shop successfully registered!");
+        if (onComplete) onComplete(); 
+        navigate('/vendor'); 
       } else {
-        alert(data.message || "Registration failed");
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            alert(data.message || "Failed to register shop.");
+        } else {
+            alert(`Server Error: The route was not found (${response.status})`);
+        }
       }
     } catch (error) {
-      console.error("Error registering shop:", error);
-      alert("Could not connect to the server.");
+      console.error("Error creating shop:", error);
+      alert("Server error. Please try again.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 border border-slate-100">
-        <h2 className="text-3xl font-black text-slate-900 mb-2">Register Your Shop</h2>
-        <p className="text-slate-500 mb-8 font-medium">Set up your campus presence.</p>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
+      <div className="max-w-md w-full bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-black text-slate-900">Set Up Your Shop</h2>
+          <p className="text-slate-500 mt-2 font-medium">Just one more step to start selling!</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Shop Name */}
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Shop Name</label>
-            <input name="shopName" type="text" required placeholder="e.g., Skyline Cafe"
-              className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-orange-500 transition-all" />
+            <label className="block text-sm font-bold text-slate-700 mb-1">Shop Name</label>
+            <input 
+              type="text" 
+              required 
+              value={shopName}
+              onChange={(e) => setShopName(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+              placeholder="e.g. Skyline Cafe"
+            />
           </div>
 
-          {/* Location Selection - Entity 5 */}
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Campus Location</label>
-            <select name="location" className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-orange-500 appearance-none">
-              <option value="AUMALL">AU Mall</option>
-              <option value="AUPLAZA">AU Plaza</option>
-              <option value="CANTEEN">Campus Canteen</option>
+            <label className="block text-sm font-bold text-slate-700 mb-1">Cuisine Type</label>
+            <input 
+              type="text" 
+              required 
+              value={cuisineType}
+              onChange={(e) => setCuisineType(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+              placeholder="e.g. Thai, Beverages, Fast Food"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1">Campus Location</label>
+            <select 
+              required
+              value={locationId}
+              onChange={(e) => setLocationId(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all cursor-pointer bg-white"
+            >
+              {loadingLocations ? (
+                <option value="">Loading locations...</option>
+              ) : dbLocations.length === 0 ? (
+                <option value="">No locations available</option>
+              ) : (
+                dbLocations.map(loc => (
+                  <option key={loc._id} value={loc.locationName}>{loc.locationName}</option>
+                ))
+              )}
             </select>
+            <p className="text-[10px] text-orange-500 font-bold uppercase tracking-wider mt-2 text-right">
+              * This cannot be changed later
+            </p>
           </div>
 
-          {/* Cuisine Type */}
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Cuisine Type</label>
-            <input name="cuisine" type="text" required placeholder="e.g., Thai Fusion, Drinks"
-              className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-orange-500 transition-all" />
-          </div>
-
-          {/* Shop Image Upload */}
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Shop Photo</label>
-            <div className="relative group border-2 border-dashed border-slate-200 rounded-2xl p-4 hover:border-orange-500 transition-colors">
-              <input 
-                name="shopImage" 
-                type="file" 
-                accept="image/*" 
-                onChange={handleImageChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-              />
-              <div className="flex flex-col items-center justify-center">
-                {imagePreview ? (
-                  <img src={imagePreview} alt="Preview" className="h-32 w-full object-cover rounded-xl" />
-                ) : (
-                  <>
-                    <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p className="text-xs font-bold text-slate-400">Upload Shop Photo</p>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-orange-600 transition-all shadow-lg hover:shadow-orange-500/20">
-            Create Shop Profile
+          <button 
+            type="submit" 
+            disabled={loadingLocations || dbLocations.length === 0}
+            className="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition-colors mt-4 disabled:bg-slate-300"
+          >
+            Open Shop
           </button>
         </form>
       </div>

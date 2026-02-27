@@ -139,6 +139,7 @@ const Profile = ({ user, setUser }) => {
               <select 
                 value={formData.locationId}
                 onChange={(e) => setFormData({...formData, locationId: e.target.value})}
+                disabled={user.role === 'Vendor'} 
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all outline-none font-bold text-slate-700 cursor-pointer"
               >
                 {user.role === 'Vendor' ? (

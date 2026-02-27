@@ -1,36 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CustomerHome = () => {
   const navigate = useNavigate();
+  const [locations, setLocations] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Pre-defined campus locations with placeholder images
-  const locations = [
-    { 
-      id: 'AUMALL', 
-      name: 'AU Mall', 
-      // Image of a modern mall/food court interior
-      image: 'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?auto=format&fit=crop&w=600&q=80',
-      desc: 'Food court, cafes, and retail shops',
-    },
-    { 
-      id: 'AUPLAZA', 
-      name: 'AU Plaza', 
-      // Image of a lively cafeteria setting
-      image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
-      desc: 'Main student cafeteria and local food',
-    },
-    { 
-      id: 'BOOKSTORE', 
-      name: 'Book Store', 
-      // Image of a bookstore/cafe vibe
-      image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80',
-      desc: 'Business faculty and coffee stands',
-    },
-  ];
+  // Default placeholder image for locations fetched from the database
+  const defaultImage = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80';
 
-  const handleLocationSelect = (locationId) => {
-    navigate(`/vendors/${locationId}`);
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/locations`);
+        if (response.ok) {
+          const data = await response.json();
+          setLocations(data);
+        }
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLocations();
+  }, []);
+
+  const handleLocationSelect = (locationName) => {
+    // We pass the locationName (e.g., "AU Plaza") to match how your vendors are likely filtered
+    navigate(`/vendors/${locationName}`);
   };
 
   return (
@@ -51,34 +50,41 @@ const CustomerHome = () => {
           <h2 className="text-2xl font-bold text-slate-900">Campus Locations</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {locations.map((loc) => (
-            <button
-              key={loc.id}
-              onClick={() => handleLocationSelect(loc.id)}
-              // Changed layout to flex-col for banner image style
-              className="bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-orange-200 transition-all group flex flex-col text-left overflow-hidden h-full"
-            >
-              {/* Image Banner Container */}
-              <div className="h-48 w-full overflow-hidden relative">
-                <img
-                  src={loc.image}
-                  alt={loc.name}
-                  // Added slow zoom effect on hover
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                {/* Subtle dark overlay to make text pop if needed */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </div>
+        {loading ? (
+          <div className="text-center text-slate-400 font-bold animate-pulse py-12">
+            Loading Campus Locations...
+          </div>
+        ) : locations.length === 0 ? (
+          <div className="text-center text-slate-400 font-bold py-12">
+            No locations available right now.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {locations.map((loc) => (
+              <button
+                key={loc._id}
+                onClick={() => handleLocationSelect(loc.locationName)}
+                className="bg-white rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-orange-200 transition-all group flex flex-col text-left overflow-hidden h-full"
+              >
+                {/* Image Banner Container */}
+                <div className="h-48 w-full overflow-hidden relative">
+                  <img
+                    src={defaultImage}
+                    alt={loc.locationName}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
 
-              {/* Text Container */}
-              <div className="p-6 flex-grow flex flex-col justify-end bg-white relative z-10">
-                <h3 className="text-xl font-bold text-slate-900 group-hover:text-orange-500 transition-colors">{loc.name}</h3>
-                <p className="text-slate-500 text-sm mt-1">{loc.desc}</p>
-              </div>
-            </button>
-          ))}
-        </div>
+                {/* Text Container */}
+                <div className="p-6 flex-grow flex flex-col justify-end bg-white relative z-10">
+                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-orange-500 transition-colors">{loc.locationName}</h3>
+                  <p className="text-slate-500 text-sm mt-1">Explore food vendors here</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
 
       </div>
     </div>
