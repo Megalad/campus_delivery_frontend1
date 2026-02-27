@@ -19,12 +19,32 @@ const Login = ({ onSwitch, onLoginSuccess }) => {
         body: JSON.stringify(loginData)
       });
 
-      // ✅ Always parse once, so error branch can use message safely
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        onLoginSuccess(data.user);
+        let loggedInUser = data.user;
+
+        // NEW: If the user is a vendor, check if they already have a shop created
+        if (loggedInUser.role === 'Vendor' || loggedInUser.role === 'vendor') {
+          try {
+            const vendorId = loggedInUser.id || loggedInUser._id;
+            const shopResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/vendors/my-shop/${vendorId}`);
+            
+            if (shopResponse.ok) {
+              loggedInUser.hasShop = true;
+            } else {
+              loggedInUser.hasShop = false;
+            }
+          } catch (shopErr) {
+            console.error("Failed to check shop status:", shopErr);
+            loggedInUser.hasShop = false;
+          }
+        }
+
+        // Save the updated user object (with the hasShop flag) to storage
+        localStorage.setItem('user', JSON.stringify(loggedInUser));
+        onLoginSuccess(loggedInUser);
+
       } else {
         setErrorMessage(data.message || "Invalid credentials");
       }

@@ -73,7 +73,11 @@ function AppRoutes({ user, setUser, hasShop, setHasShop, handleLogout }) {
           path="/login"
           element={!user ? (
             <Login
-              onLoginSuccess={setUser}
+              onLoginSuccess={(loggedInUser) => {
+                setUser(loggedInUser);
+                // NEW: Instantly update hasShop state so there is no delay!
+                setHasShop(loggedInUser.hasShop || false); 
+              }}
               onSwitch={handleSwitchToRegister}
             />
           ) : (
@@ -158,15 +162,29 @@ function App() {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const [hasShop, setHasShop] = useState(false);
+  // NEW: Read hasShop directly from local storage so we don't flash the setup page
+  const [hasShop, setHasShop] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      return parsed.hasShop || false;
+    }
+    return false;
+  });
 
   useEffect(() => {
     const verifyVendorShop = async () => {
-      if (user?.role === 'Vendor') {
+      // NEW: Check for capital V
+      if (user?.role === 'Vendor' || user?.role === 'vendor') {
         try {
-          const response = await fetch(`https://my-server-1.eastasia.cloudapp.azure.com/api/vendors/my-shop/${user._id || user.id}`);
+          // NEW: Replaced hardcoded "my-server-1" with dynamic VITE_API_URL
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/vendors/my-shop/${user._id || user.id}`);
           if (response.ok) {
             setHasShop(true);
+            
+            // Silently update local storage to keep it fresh
+            const updatedUser = { ...user, hasShop: true };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
           } else {
             setHasShop(false);
           }
@@ -176,7 +194,10 @@ function App() {
       }
     };
 
-    verifyVendorShop();
+    // Only run the fetch check if we don't already know they have a shop
+    if (!hasShop) {
+      verifyVendorShop();
+    }
   }, [user]);
 
   const handleLogout = useCallback(() => {
